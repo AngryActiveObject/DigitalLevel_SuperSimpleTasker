@@ -9,9 +9,6 @@
 #include "dbc_assert.h" /* Design By Contract (DBC) assertions */
 DBC_MODULE_NAME("blinky")
 
-#define MIN(x_,y_) ((x_ > y_)? y_ : x_)
-
-/*blinky task*/
 
 static void Blinky_initHandler(BlinkyTask_T *const me, SST_Evt const *const ie);
 static void Blinky_taskHandler(BlinkyTask_T *const me, SST_Evt const *const e);
@@ -25,15 +22,15 @@ void Blinky_ctor(BlinkyTask_T * me) {
 
 }
 
+/*Init handler called by SST kernel on start of the task. Arms the blinky timer with reload value of 50ms*/
 void Blinky_initHandler(BlinkyTask_T *const me, SST_Evt const *const ie) {
 	(void) ie;
 	SST_TimeEvt_arm(&(me->blinkyTimer), 1u, 50);
 }
 
 
-/*Blinky task uses a timer event to toggle the brightness of the red led every 1s*/
-#define DUTYHIGH (750)
-#define DUTYLOW (250)
+/*Gets blinky task is called periodically at 50ms and sets the brighness of the four LEDS on the STM32407G-DISC1
+* board in proportion to the LIS3DSH sensors X and Y axis accelerations (psuedo level sensor)*/
 void Blinky_taskHandler(BlinkyTask_T *const me, SST_Evt const *const e) {
 
 	(void)me;

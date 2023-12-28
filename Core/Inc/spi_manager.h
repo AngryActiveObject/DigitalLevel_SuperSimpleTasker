@@ -22,12 +22,12 @@ typedef enum SPIManager_State_e {
 
 typedef struct {
 	SST_Task const *pAOrequester; /*active object that requested the SPI transaction job*/
-	uint8_t *txData;
-	uint8_t *rxData;
 	GPIO_TypeDef * pcsGPIOPort; /*chip select port to use*/
 	uint16_t csGPIOPin;  /*chip select pin to use*/
-	uint16_t timeoutCnt_ms;
-	uint16_t lenData;
+	uint8_t *txData;
+	uint8_t *rxData;
+	uint16_t lenData; /*Number of bytes in the job*/
+	uint16_t timeoutCnt_ms; /*timeout time the job*/
 } SPIManager_Job_t;
 
 /*jobs are passed to the SPIManager in its event quest*/

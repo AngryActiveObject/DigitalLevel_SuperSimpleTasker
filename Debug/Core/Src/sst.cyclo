@@ -1,8 +1,0 @@
-../Core/Src/sst.c:32:5:SST_Task_run	1
-../Core/Src/sst.c:42:6:SST_Task_ctor	1
-../Core/Src/sst.c:51:6:SST_Task_start	4
-../Core/Src/sst.c:78:6:SST_Task_post	3
-../Core/Src/sst.c:100:6:SST_TimeEvt_ctor	1
-../Core/Src/sst.c:115:6:SST_TimeEvt_arm	1
-../Core/Src/sst.c:127:6:SST_TimeEvt_disarm	1
-../Core/Src/sst.c:137:6:SST_TimeEvt_tick	4

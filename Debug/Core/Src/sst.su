@@ -1,8 +1,0 @@
-../Core/Src/sst.c:32:5:SST_Task_run	8	static
-../Core/Src/sst.c:42:6:SST_Task_ctor	24	static
-../Core/Src/sst.c:51:6:SST_Task_start	24	static
-../Core/Src/sst.c:78:6:SST_Task_post	16	static,ignoring_inline_asm
-../Core/Src/sst.c:100:6:SST_TimeEvt_ctor	24	static
-../Core/Src/sst.c:115:6:SST_TimeEvt_arm	16	static,ignoring_inline_asm
-../Core/Src/sst.c:127:6:SST_TimeEvt_disarm	24	static,ignoring_inline_asm
-../Core/Src/sst.c:137:6:SST_TimeEvt_tick	16	static,ignoring_inline_asm

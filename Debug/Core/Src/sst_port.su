@@ -1,9 +1,0 @@
-../Core/Src/sst_port.c:43:6:SST_init	16	static
-../Core/Src/sst_port.c:67:6:SST_start	16	static
-../Core/Src/sst_port.c:83:6:SST_Task_setPrio	24	static,ignoring_inline_asm
-../Core/Src/sst_port.c:114:6:SST_Task_activate	24	static,ignoring_inline_asm
-../Core/Src/sst_port.c:141:6:SST_Task_setIRQ	16	static
-../Core/Src/sst_port.c:146:13:SST_Task_lock	24	static,ignoring_inline_asm
-../Core/Src/sst_port.c:175:6:SST_Task_unlock	16	static,ignoring_inline_asm
-../Core/Src/sst_port.c:188:6:SST_onIdle	4	static
-../Core/Src/sst_port.c:193:6:SST_onStart	4	static
