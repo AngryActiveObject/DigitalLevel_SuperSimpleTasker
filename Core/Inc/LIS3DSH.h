@@ -111,6 +111,8 @@ typedef struct LIS3DSH_task_s{
 } LIS3DSH_task_t;
 
 
+/*************************Public Function Prototypes ******************************************************/
+
 void LIS3DSH_ctor(LIS3DSH_task_t * me, SST_Task const * const SPI_Manager_AO, GPIO_TypeDef * pcsGPIOPort, uint16_t csGPIOPin);
 
 LIS3DSH_Results_t LIS3DSH_get_accel_xyz(LIS3DSH_task_t * me);

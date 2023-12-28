@@ -1,9 +1,24 @@
-/**
+/** \file LIS3DSH.c
  ******************************************************************************
  * @file    LIS3DSH.c
- * @author  Duncan Hennion
- * @brief   Driver task for LIS3DSH MEMS chip
- **/
+ * @brief   This file provides a state machine to setup and poll a LIS3DSH mems accelerometer
+ ******************************************************************************
+ * This module uses an active object and event driven state machine to walkthrough the setup 
+ * and polling of an LIS3DSH mems device. The device has an initialisation state and a idle and reading state. 
+ * The initialisation state writes the configuration registers on the device and then reads them back and verifies them. 
+ * The idle state waits for a polling event signal from the timer armed after initialisation, when the polling event is received 
+ * a txrx request is made to the downstream SPI_manager to read the output registers of the device. The device then enters the 
+ * reading state until the data has been received after which it collects the results into the devices internal structure and
+ * returns to the idle state waiting for the next polling event. 
+ * @note 
+ * The LIS3DSH device has to wait for a SPI_TXRXCOMPLETE_SIG or SPI_TIMEOUT_SIG before the data in its rxBuffer is valid. During a 
+ * transaction no changes to the tx or rxBuffers are allows as they may be modified by the SPI_manager device. This rule prevents race 
+ * conditions without requiring copies of data into and out of message queues. 
+ * @todo - more assertions + design by contract.
+}
+ ******************************************************************************
+ ******************************************************************************
+ */
 #include "LIS3DSH.h"
 
 #include "dbc_assert.h"
@@ -13,9 +28,9 @@ DBC_MODULE_NAME("LIS3DSH")
 
 #define LIS3DSH_DEFAULT_TIMEOUT_MS (10u)
 #define LIS3DSH_MAX_INIT_ATTEMPTS (3u)
-#define LIS3DSH_POLL_MS (5u)
+#define LIS3DSH_POLL_MS (10u)
 
-/*private function prototypes*/
+/*********************private function prototypes****************************/
 static void LIS3DSH_init_Handler(LIS3DSH_task_t *const me,
 		SST_Evt const *const ie);
 
@@ -44,7 +59,16 @@ static void LIS3DSH_fault_enter(LIS3DSH_task_t *const me);
 
 static void LIS3DSH_txrx_SPI(LIS3DSH_task_t *const me, uint8_t *txData,
 		uint16_t len);
-/*public function declarations*/
+/*************************public function declarations*************************/
+
+/**
+ * @brief LIS3DSH_ctor - constructor for a LIS3DSH device driver
+ * @param me - me device pointer 
+ * @param SPIDeviceAO - pointer to spi device manager the LIS3DSH drive shall use to communicate with the device
+ * @param pcsGPIOPort - pointer to the GPIO port used for the LIS3DSH chip select pin
+ * @param csGPIOPin - LIS3DSH chip select pin 
+ * 
+ */
 void LIS3DSH_ctor(LIS3DSH_task_t *me, SST_Task const *const SPIDeviceAO,
 		GPIO_TypeDef *pcsGPIOPort, uint16_t csGPIOPin) {
 
@@ -69,12 +93,18 @@ void LIS3DSH_ctor(LIS3DSH_task_t *me, SST_Task const *const SPIDeviceAO,
 	me->DrvrState = LIS3DSH_INITIALISING;
 	me->initStage = 1; /*initial stage is one as the first stage is always performed in init handler*/
 	me->initAttempts = 0;
-
+	
+	/** @todo allow additional configurate options */
 	me->ctrlReg4 = LIS3DSH_ODR_100Hz << LIS3DSH_CTRL4_ODR_POS;
 	me->ctrlReg4 |= LIS3DSH_CTRL4_XEN_MSK | LIS3DSH_CTRL4_YEN_MSK
 			| LIS3DSH_CTRL4_ZEN_MSK;
 }
 
+/**
+ * @brief LIS3DSH_get_accel_xyz - Raw read of the LIS3DSH data (results may not be from the same polling event)
+ * @param me - me device pointer 
+ * @return - x y z acceleration results structure LIS3DSH_Results_t
+ */
 LIS3DSH_Results_t LIS3DSH_get_accel_xyz(LIS3DSH_task_t * me)
 {
 	LIS3DSH_Results_t results;
@@ -84,13 +114,24 @@ LIS3DSH_Results_t LIS3DSH_get_accel_xyz(LIS3DSH_task_t * me)
 	return results;
 }
 
-/*private function declarations*/
+/***************************private function declarations****************************/
+/**
+ * @brief LIS3DSH_get_accel_xyz - Raw read of the LIS3DSH data (results may not be from the same polling event)
+ * @param me - me device pointer 
+ * @return - x y z acceleration results structure LIS3DSH_Results_t
+ */
 static void LIS3DSH_init_Handler(LIS3DSH_task_t *const me,
 		SST_Evt const *const ie) {
 	(void) ie;
 	LIS3DSH_init_stage0(me);
 }
 
+/**
+ * @brief LIS3DSH_task_Handler - Core active object task handler, implements a switch case style state machine 
+ * and calls the appropriate state handler.
+ * @param me - me device pointer 
+ * @param e- event passed from the kernel 
+ */
 static void LIS3DSH_task_Handler(LIS3DSH_task_t *const me,
 		SST_Evt const *const e) {
 	/*state driven switch, event signal is checked in each state.*/
@@ -118,6 +159,15 @@ static void LIS3DSH_task_Handler(LIS3DSH_task_t *const me,
 	}
 }
 
+/**
+ * @brief LIS3DSH_initialising_Handler - Handler used when the device is in the initialising state. 
+ * This handler walks the device through the 3 initialisation states. 
+ * 0-> tx write configuration to the device 
+ * 1-> request a read of the configuration 
+ * 2-> validate the registers have been written succesfully.
+ * @param me - me device pointer 
+ * @param e- event passed from the kernel 
+ */
 static void LIS3DSH_initialising_Handler(LIS3DSH_task_t *const me,
 		SST_Evt const *const e) {
 	switch (e->sig) {
@@ -155,6 +205,11 @@ static void LIS3DSH_initialising_Handler(LIS3DSH_task_t *const me,
 	}
 }
 
+
+/**
+ * @brief LIS3DSH_init_stage0 - requests the write of the configuration registers.
+ * @param me - me device pointer 
+ */
 static void LIS3DSH_init_stage0(LIS3DSH_task_t *const me) {
 	/*write control registers configuration to the device*/
 	uint8_t spiTxBuffer[] = { LIS3DSH_CTRL4, me->ctrlReg4 };
@@ -163,6 +218,10 @@ static void LIS3DSH_init_stage0(LIS3DSH_task_t *const me) {
 	LIS3DSH_txrx_SPI(me, spiTxBuffer, sizeof(spiTxBuffer));
 }
 
+/**
+ * @brief LIS3DSH_init_stage1 - requests a read of the configuration registers.
+ * @param me - me device pointer 
+ */
 static void LIS3DSH_init_stage1(LIS3DSH_task_t *const me) {
 	/*call a read of the control register to check it has been written*/
 	me->initStage = 2;
@@ -170,12 +229,18 @@ static void LIS3DSH_init_stage1(LIS3DSH_task_t *const me) {
 	LIS3DSH_txrx_SPI(me, spiTxBuffer, sizeof(spiTxBuffer));
 }
 
+/**
+ * @brief LIS3DSH_init_stage2 - verifies the configuration registers. 
+ * if verification is succesful the driver state is moved to the IDLE state and the driver begins the polling the device. 
+ * If verification is unsuccesful the initialisation events are repeats by LIS3DSH_MAX_INIT_ATTEMPTS
+ * @param me - me device pointer 
+ */
 static void LIS3DSH_init_stage2(LIS3DSH_task_t *const me) {
 	/*check read back register is equal to the desired config*/
 	if (me->spiRxBuffer[1] == me->ctrlReg4) {
 		/*initialisation complete*/
 		me->DrvrState = LIS3DSH_IDLE; /*move to idle state*/
-		SST_TimeEvt_arm(&(me->pollTimer), LIS3DSH_POLL_MS, LIS3DSH_POLL_MS); /*arm the timer to start polling data*/
+		SST_TimeEvt_arm(&(me->pollTimer), 1u, LIS3DSH_POLL_MS); /*arm the timer to start polling data*/
 	} else {
 		me->initStage = 0;
 		me->initAttempts++;
@@ -187,6 +252,13 @@ static void LIS3DSH_init_stage2(LIS3DSH_task_t *const me) {
 	}
 }
 
+/**
+ * @brief LIS3DSH_idle_Handler - On receipt of a polling event while in the idle state,
+ * the device triggers the read of the OUT X,Y,Z registers in one transaction to read the accelerations.
+ * The device modes to the READING state in this event. 
+ * @param me - me device pointer 
+ * @param e- event passed from the kernel 
+ */
 static void LIS3DSH_idle_Handler(LIS3DSH_task_t *const me,
 		SST_Evt const *const e) {
 	switch (e->sig) {
@@ -215,6 +287,13 @@ static void LIS3DSH_idle_Handler(LIS3DSH_task_t *const me,
 
 }
 
+/**
+ * @brief LIS3DSH_reading_Handler - When the TXRXComplete signal is received in the reading state. 
+ * The handler converts and stores the results as raw int16_t values.  
+ * If a TIMEOUT event is received the device driver enters a faulty state. 
+ * @param me - me device pointer 
+ * @param e- event passed from the kernel 
+ **/
 static void LIS3DSH_reading_Handler(LIS3DSH_task_t *const me,
 		SST_Evt const *const e) {
 	switch (e->sig) {
@@ -253,6 +332,10 @@ static void LIS3DSH_reading_Handler(LIS3DSH_task_t *const me,
 	}
 }
 
+/**
+ * @brief LIS3DSH_fault_Handler - In the fault handler state, the device does nothing.
+ * @param me - me device pointer 
+ */
 static void LIS3DSH_fault_Handler(LIS3DSH_task_t *const me,
 		SST_Evt const *const e) {
 	/*do nothing*/
@@ -260,6 +343,11 @@ static void LIS3DSH_fault_Handler(LIS3DSH_task_t *const me,
 	(void) e;
 }
 
+/**
+ * @brief LIS3DSH_fault_enter - Helper function to push the device driver into the fault state. 
+ * Write default values to the results registers and disarms the polling timer. 
+ * @param me - me device pointer 
+ */
 static void LIS3DSH_fault_enter(LIS3DSH_task_t *const me) {
 	me->DrvrState = LIS3DSH_FAULT;
 	me->Results.x_g = 0;
@@ -268,6 +356,15 @@ static void LIS3DSH_fault_enter(LIS3DSH_task_t *const me) {
 	SST_TimeEvt_disarm(&(me->pollTimer));
 }
 
+
+/**
+ * @brief LIS3DSH_fault_enter - Sends a txrx request to the SPIManager that is configured for this device. 
+ * Flushes the rx buffer and copies the required data into the device drivers TxBuffer.
+ * @note once called this function may be called and the buffers not used until a response has been received from the SPIManager 
+ * @param me - me device pointer 
+ * @param txData - pointer to the transmit data buffer 
+ * @param len - length of the transmitted data. 
+ */
 static void LIS3DSH_txrx_SPI(LIS3DSH_task_t *const me, uint8_t *txData,
 		uint16_t len) {
 	/**@pre whenever this is called the LIS3DSH handler cannot call it again

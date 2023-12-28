@@ -88,7 +88,7 @@ void SPIManager_ctor(SPIManager_Task_t *const me, SPI_HandleTypeDef *pspiDevice)
 
 /**
  * @brief SPIManager_post_txrx_Request - Posts a request for a txrx job to the spi manager
- * @param AO - Pointer to the SST_Task active object that made the request
+ * @param AO - Pointer to the SPI manager active object the request is to be made to. 
  * @param pEvent - pointer to a SPIManager_Evnt_t object that contains a SPI_TXRXREQ_SIG request
  */
 void SPIManager_post_txrx_Request(SST_Task *const AO, SPIManager_Evnt_t *pEvent) {
@@ -147,6 +147,7 @@ void SPIManager_task_Handler(SPIManager_Task_t *const me,
  */
 void SPIManager_txrx_Req_Handler(SPIManager_Task_t *const me,
 		const SPIManager_Evnt_t *const e) {
+
 	DBC_ASSERT(20, (me != NULL) && (e != NULL) && (e->pJob != NULL));
 
 	if (me->MgrState == SPI_MGR_BUSY) {
