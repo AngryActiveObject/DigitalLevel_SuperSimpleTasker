@@ -105,9 +105,9 @@ LIS3DSH_Results_t LIS3DSH_read(void)
 
 /*****************************Blinky Task Config************************/
 
-#define BLINKY_IRQn (79u)
-#define BLINKY_IRQHANDLER0 UNUSED_IRQHandler0
-#define BLINKY_TASK_PRIORITY ((SST_TaskPrio)1u)
+#define BLINKY_IRQn (79u) /* interrupt line in the NVIQ for unused interrupt on STM32F407*/
+#define BLINKY_IRQHANDLER0 UNUSED_IRQHandler0 /*UNUSED interrupt handler is used for blinky thread*/
+#define BLINKY_TASK_PRIORITY ((SST_TaskPrio)1u) // /*opposite to NVIC increasing numbers have increasing priority*/
 
 static BlinkyTask_T BlinkyInstance;
 static SST_Task *const AO_Blink = &(BlinkyInstance.super); /*Scheduler task pointer*/
@@ -124,10 +124,10 @@ void BSP_init_blinky_task(void) {
 
 	SST_Task_setIRQ(AO_Blink, BLINKY_IRQn);
 
-	NVIC_EnableIRQ(BLINKY_IRQn); /*RNG interrupt number is for the blinky task*/
+	NVIC_EnableIRQ(BLINKY_IRQn); 
 
 	SST_Task_start(AO_Blink, BLINKY_TASK_PRIORITY, blinkyMsgQueue,
-	BLINKY_MSG_QUEUELEN, 0); /*no intial event*/
+	BLINKY_MSG_QUEUELEN, 0); /*no intial event*/'
 }
 
 void BSP_init(void) {

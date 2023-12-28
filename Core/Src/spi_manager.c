@@ -140,7 +140,7 @@ void SPIManager_task_Handler(SPIManager_Task_t *const me,
 /**
  * @brief SPIManager_txrx_Req_Handler - event handler for SPI_TXRXREQ_SIG which is 
  * received on external requests for a txrx job.
- * The handler either immediatly calls the low level drivers if the device is not busy or 
+ * The handler either immediately calls the low level drivers if the device is not busy or
  * enqueues the job for sending when the SPI device becomes free. 
  * @param me - me pointer
  * @param e - pointer to event that triggered this call. 
