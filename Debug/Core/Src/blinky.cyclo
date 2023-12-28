@@ -1,0 +1,3 @@
+../Core/Src/blinky.c:19:6:Blinky_ctor	1
+../Core/Src/blinky.c:28:6:Blinky_initHandler	1
+../Core/Src/blinky.c:37:6:Blinky_taskHandler	4

@@ -1,0 +1,10 @@
+../Core/Src/spi_manager.c:63:6:SPIManager_ctor	1
+../Core/Src/spi_manager.c:79:6:SPIManager_post_txrx_Request	4
+../Core/Src/spi_manager.c:87:6:SPIManager_init_Handler	1
+../Core/Src/spi_manager.c:93:6:SPIManager_task_Handler	5
+../Core/Src/spi_manager.c:115:7:SPIManager_start_txrx	4
+../Core/Src/spi_manager.c:132:7:SPIManager_txrx_complete_Handler	4
+../Core/Src/spi_manager.c:157:7:SPIManager_txrx_Req_Handler	6
+../Core/Src/spi_manager.c:174:7:SPIManager_Timeout_Handler	5
+../Core/Src/spi_manager.c:188:20:SPIManager_enqueue_Job	3
+../Core/Src/spi_manager.c:208:20:SPIManager_dequeue_Job	3
