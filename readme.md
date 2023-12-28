@@ -21,12 +21,12 @@ The repo contains an [stm32cubeide](https://www.st.com/en/development-tools/stm3
 The spi manager is implemented as a simple state machine. See the diagram below. Currently, because the message queue in the SST kernel is a queue of pointers to queue items, the txrx jobs in the managers message queue either have to be immutable or left alone and kept valid by the requestor until a txrxComplete or timeout response from the manager has been posted back to the requesting task.
 If the manager receives a txrx (I haven't implemented Tx only yet) request signal event during the middle of an SPI transaction the manager populates an internal buffer of requested jobs which it empties when the SPI peripheral becomes available again. 
 
-![alt text](https://github.com/hennionduncan/DigitalLevel_SuperSimpleTasker/blob/main/Docs/SPI_Manager.png "SPI_Manager")
+![alt text](https://github.com/AngryActiveObject/DigitalLevel_SuperSimpleTasker/blob/main/Docs/SPI_Manager.png "SPI_Manager")
 
 ## LIS3DSH States
 This module communicates via the SPI_manager with the LISD3H mems accelerometer on the board. The initialising states walk through a process of configuration and verification (re attempting if needed) followed by a polling mode driven by an SST_TimerEvt kernal object. 
 
-![alt text](https://github.com/hennionduncan/DigitalLevel_SuperSimpleTasker/blob/main/Docs/LIS3DSH_Handler.png "LIS3DSH_Handler.png")
+![alt text](https://github.com/AngryActiveObject/DigitalLevel_SuperSimpleTasker/blob/main/Docs/LIS3DSH_Handler.png "LIS3DSH_Handler.png")
 
 TODO: setup the interrupt mode of operation whereby the MEMs chip triggers a hardware interrupt in the STM32 to report it has fresh acceleration data ready.
 ## BSP Task configuration 
