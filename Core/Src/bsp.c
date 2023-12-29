@@ -142,17 +142,21 @@ void BSP_init(void) {
 
 
 void set_blue_LED_duty(uint16_t duty) {
+	/*1024 = 100% max duty*/
 	TIM4->CCR4 = duty;
 }
 void set_red_LED_duty(uint16_t duty) {
+	/*1024 = 100% max duty*/
 	TIM4->CCR3 = duty;
 }
 
 void set_orange_LED_duty(uint16_t duty) {
+	/*1024 = 100% max duty*/
 	TIM4->CCR2 = duty;
 }
 
 void set_green_LED_duty(uint16_t duty) {
+	/*1024 is max duty*/
 	TIM4->CCR1 = duty;
 }
 

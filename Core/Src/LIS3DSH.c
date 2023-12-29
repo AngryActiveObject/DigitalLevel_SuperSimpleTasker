@@ -152,8 +152,8 @@ LIS3DSH_Results_t LIS3DSH_get_accel_xyz(LIS3DSH_task_t * me)
 	 * this makes the fixed point format Q14*/
 	LIS3DSH_Results_t results;
 	results.x_gQ14 = me->Results.x_gQ14;
-	results.x_gQ14 = me->Results.x_gQ14;
-	results.x_gQ14 = me->Results.x_gQ14;
+	results.y_gQ14 = me->Results.y_gQ14;
+	results.z_gQ14 = me->Results.z_gQ14;
 	return results;
 }
 
