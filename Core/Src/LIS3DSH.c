@@ -30,6 +30,47 @@ DBC_MODULE_NAME("LIS3DSH")
 #define LIS3DSH_MAX_INIT_ATTEMPTS (3u)
 #define LIS3DSH_POLL_MS (10u)
 
+/*************************Register definitions*******************/
+#define LIS3DSH_READ (0x01 << 7) /*bit 7 sets LIS3DSH to read*/
+/* MEMS REGISTER ADDRESS*/
+#define LIS3DSH_OUT_T (0x0C)
+#define LIS3DSH_INFO1 (0x0D)
+#define LIS3DSH_INFO2 (0x0E)
+#define LIS3DSH_WHO (0x0F)
+#define LIS3DSH_STAT (0x18)
+#define LIS3DSH_CTRL4 (0x20)
+#define LIS3DSH_CTRL1 (0x21)
+#define LIS3DSH_CTRL2 (0x22)
+#define LIS3DSH_CTRL3 (0x23)
+#define LIS3DSH_CTRL5 (0x24)
+#define LIS3DSH_CTRL6 (0x25)
+#define LIS3DSH_STATUS (0x27)
+#define LIS3DSH_OUT_X_L (0x28)
+#define LIS3DSH_OUT_X_H (0x29)
+#define LIS3DSH_OUT_Y_L (0x2A)
+#define LIS3DSH_OUT_Y_H (0x2B)
+#define LIS3DSH_OUT_Z_L (0x2C)
+#define LIS3DSH_OUT_Z_H (0x2D)
+
+/* CTRL4 register 4 bit def msks*/
+#define LIS3DSH_CTRL4_ODR_POS (0x04)
+#define LIS3DSH_CTRL4_ODR_MSK (0x0F << LIS3DSH_CTRL4_ODR_POS)
+#define LIS3DSH_CTRL4_BDU_POS (0x03)
+#define LIS3DSH_CTRL4_BDU_MSK (0x01 << LIS3DSH_CTRL4_BDU_POS)
+#define LIS3DSH_CTRL4_ZEN_POS (0x02)
+#define LIS3DSH_CTRL4_ZEN_MSK (0x01 << LIS3DSH_CTRL4_ZEN_POS)
+#define LIS3DSH_CTRL4_YEN_POS (0x01)
+#define LIS3DSH_CTRL4_YEN_MSK (0x01 << LIS3DSH_CTRL4_YEN_POS)
+#define LIS3DSH_CTRL4_XEN_POS (0x00)
+#define LIS3DSH_CTRL4_XEN_MSK (0x01 << LIS3DSH_CTRL4_XEN_POS)
+
+/* Block data update Mode*/
+#define LIS3DSH_BDU_ENABLE (0x01u)
+#define LIS3DSH_BDU_DISABLE (0x00u)
+
+#define IS_A_LIS3DSH_BDU(u) (u == LIS3DSH_BDU_ENABLE || u == LIS3DSH_BDU_DISABLE)
+
+
 /*********************private function prototypes****************************/
 static void LIS3DSH_init_Handler(LIS3DSH_task_t *const me,
 		SST_Evt const *const ie);
@@ -94,7 +135,7 @@ void LIS3DSH_ctor(LIS3DSH_task_t *me, SST_Task const *const SPIDeviceAO,
 	me->initStage = 1; /*initial stage is one as the first stage is always performed in init handler*/
 	me->initAttempts = 0;
 	
-	/** @todo allow additional configurate options */
+	/** @todo allow additional configuration options */
 	me->ctrlReg4 = LIS3DSH_ODR_100Hz << LIS3DSH_CTRL4_ODR_POS;
 	me->ctrlReg4 |= LIS3DSH_CTRL4_XEN_MSK | LIS3DSH_CTRL4_YEN_MSK
 			| LIS3DSH_CTRL4_ZEN_MSK;

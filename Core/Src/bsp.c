@@ -127,7 +127,7 @@ void BSP_init_blinky_task(void) {
 	NVIC_EnableIRQ(BLINKY_IRQn); 
 
 	SST_Task_start(AO_Blink, BLINKY_TASK_PRIORITY, blinkyMsgQueue,
-	BLINKY_MSG_QUEUELEN, 0); /*no intial event*/'
+			BLINKY_MSG_QUEUELEN, 0); /*no initial event*/
 }
 
 void BSP_init(void) {
