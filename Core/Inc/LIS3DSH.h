@@ -37,10 +37,12 @@ typedef enum LIS3DSH_DRVRState_e{
 	LIS3DSH_FAULT,
 } LIS3DSH_DRVRState_t;
 
+/*results are received from the device in units of g using a Q14 number format by default
+ * giving full scale of +-2g*/
 typedef struct LIS3DSH_Results_s{
-	int16_t x_g;
-	int16_t y_g;
-	int16_t z_g;
+	int16_t x_gQ14; /*Q14*/
+	int16_t y_gQ14;
+	int16_t z_gQ14;
 }LIS3DSH_Results_t;
 
 typedef struct LIS3DSH_Config_s{

@@ -39,10 +39,10 @@ void Blinky_taskHandler(BlinkyTask_T *const me, SST_Evt const *const e) {
 
 		LIS3DSH_Results_t xyz_accels = LIS3DSH_read();
 
-		uint_fast16_t  xbrightnessPos = (uint_fast16_t) ((xyz_accels.x_g > 0) ? xyz_accels.x_g : 0);
-		uint_fast16_t  xbrightnessNeg = (uint_fast16_t) ((xyz_accels.x_g < 0) ? -xyz_accels.x_g : 0);
-		uint_fast16_t  ybrightnessPos = (uint_fast16_t) ((xyz_accels.y_g > 0) ? xyz_accels.y_g : 0);
-		uint_fast16_t  ybrightnessNeg = (uint_fast16_t) ((xyz_accels.y_g < 0) ? -xyz_accels.y_g : 0);
+		uint_fast16_t  xbrightnessPos = (uint_fast16_t) ((xyz_accels.x_gQ14 > 0) ? xyz_accels.x_gQ14 : 0);
+		uint_fast16_t  xbrightnessNeg = (uint_fast16_t) ((xyz_accels.x_gQ14 < 0) ? -xyz_accels.x_gQ14 : 0);
+		uint_fast16_t  ybrightnessPos = (uint_fast16_t) ((xyz_accels.y_gQ14 > 0) ? xyz_accels.y_gQ14 : 0);
+		uint_fast16_t  ybrightnessNeg = (uint_fast16_t) ((xyz_accels.y_gQ14 < 0) ? -xyz_accels.y_gQ14 : 0);
 
 		/*example of how to round the fixed point division operation,
 		 * if the 5th bit is true then it will be truncated, so round up by adding 1 or down by adding 0*/

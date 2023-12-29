@@ -148,10 +148,12 @@ void LIS3DSH_ctor(LIS3DSH_task_t *me, SST_Task const *const SPIDeviceAO,
  */
 LIS3DSH_Results_t LIS3DSH_get_accel_xyz(LIS3DSH_task_t * me)
 {
+	/*default configuration has full scale of 2g
+	 * this makes the fixed point format Q14*/
 	LIS3DSH_Results_t results;
-	results.x_g = me->Results.x_g;
-	results.y_g = me->Results.y_g;
-	results.z_g = me->Results.z_g;
+	results.x_gQ14 = me->Results.x_gQ14;
+	results.x_gQ14 = me->Results.x_gQ14;
+	results.x_gQ14 = me->Results.x_gQ14;
 	return results;
 }
 
@@ -340,16 +342,16 @@ static void LIS3DSH_reading_Handler(LIS3DSH_task_t *const me,
 	switch (e->sig) {
 	case SPI_TXRXCOMPLETE_SIG: {
 
-		me->Results.x_g = 0;
-		me->Results.x_g = (int16_t) (me->spiRxBuffer[2] << 8
+		me->Results.x_gQ14 = 0;
+		me->Results.x_gQ14 = (int16_t) (me->spiRxBuffer[2] << 8
 				| me->spiRxBuffer[1]);
 
-		me->Results.y_g = 0;
-		me->Results.y_g = (int16_t) (me->spiRxBuffer[4] << 8
+		me->Results.y_gQ14 = 0;
+		me->Results.y_gQ14 = (int16_t) (me->spiRxBuffer[4] << 8
 				| me->spiRxBuffer[3]);
 
-		me->Results.z_g = 0;
-		me->Results.z_g = (int16_t) (me->spiRxBuffer[6] << 8
+		me->Results.z_gQ14 = 0;
+		me->Results.z_gQ14 = (int16_t) (me->spiRxBuffer[6] << 8
 				| me->spiRxBuffer[5]);
 
 		me->DrvrState = LIS3DSH_IDLE;
@@ -391,9 +393,9 @@ static void LIS3DSH_fault_Handler(LIS3DSH_task_t *const me,
  */
 static void LIS3DSH_fault_enter(LIS3DSH_task_t *const me) {
 	me->DrvrState = LIS3DSH_FAULT;
-	me->Results.x_g = 0;
-	me->Results.y_g = 0;
-	me->Results.z_g = 0;
+	me->Results.x_gQ14 = 0;
+	me->Results.y_gQ14 = 0;
+	me->Results.z_gQ14 = 0;
 	SST_TimeEvt_disarm(&(me->pollTimer));
 }
 
