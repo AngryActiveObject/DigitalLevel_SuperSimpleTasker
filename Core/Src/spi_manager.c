@@ -82,7 +82,7 @@ void SPIManager_ctor(SPIManager_Task_t *const me, SPI_HandleTypeDef *pspiDevice)
 	me->JobsHead = 0;
 	me->JobsTail = 0;
 	me->MgrState = SPI_MGR_READY;
-	memset(me->pMgrJobs, 0u, SPIMANAGER_QUEUE_SIZE * sizeof(SPIManager_Job_t));
+	memset(me->pMgrJobs, 0u, SPIMANAGER_QUEUE_SIZE * sizeof(SPIManager_Job_t*));
 	me->pSPIPeriph = pspiDevice;
 }
 

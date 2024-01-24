@@ -12,6 +12,8 @@
 #include "tim.h"
 #include "blinky.h"
 #include "spi_manager.h"
+#include "devnt.h"
+#include "mempool.h"
 
 
 static void MX_SPI1_Init(void);
@@ -107,7 +109,7 @@ LIS3DSH_Results_t LIS3DSH_read(void)
 
 #define BLINKY_IRQn (79u) /* interrupt line in the NVIQ for unused interrupt on STM32F407*/
 #define BLINKY_IRQHANDLER0 UNUSED_IRQHandler0 /*UNUSED interrupt handler is used for blinky thread*/
-#define BLINKY_TASK_PRIORITY ((SST_TaskPrio)1u) // /*opposite to NVIC increasing numbers have increasing priority*/
+#define BLINKY_TASK_PRIORITY ((SST_TaskPrio)1u) /*opposite to NVIC increasing numbers have increasing priority*/
 
 static BlinkyTask_T BlinkyInstance;
 static SST_Task *const AO_Blink = &(BlinkyInstance.super); /*Scheduler task pointer*/
@@ -130,6 +132,16 @@ void BSP_init_blinky_task(void) {
 			BLINKY_MSG_QUEUELEN, 0); /*no initial event*/
 }
 
+devnt_pool_t memPool;
+#define memPoolSize (256u)
+uint8_t memPoolBuff [256u];
+
+
+mpool_t memPool2;
+uint8_t mPoolBuff [256u];
+
+#define BLKSIZE sizeof(SPIManager_Evnt_t)
+
 void BSP_init(void) {
 	MX_GPIO_Init();
 	MX_SPI1_Init();
@@ -137,6 +149,26 @@ void BSP_init(void) {
 	BSP_init_SPIManager_Task();
 	BSP_init_blinky_task();
 	BSP_init_LIS3DSH_Task();
+
+	devnt_pool_init(&memPool, memPoolBuff, sizeof(memPoolBuff), BLKSIZE);
+
+
+	SPIManager_Evnt_t * test = (SPIManager_Evnt_t *)devnt_pool_get(&memPool, sizeof(SPIManager_Evnt_t));
+	SPIManager_Evnt_t * test1 = (SPIManager_Evnt_t *)devnt_pool_get(&memPool, sizeof(SPIManager_Evnt_t));
+	SPIManager_Evnt_t * test2 = (SPIManager_Evnt_t *)devnt_pool_get(&memPool, sizeof(SPIManager_Evnt_t));
+	SPIManager_Evnt_t * test3 = (SPIManager_Evnt_t *)devnt_pool_get(&memPool, sizeof(SPIManager_Evnt_t));
+
+	devnt_pool_put(&memPool, (void*)test2);
+	SPIManager_Evnt_t * test4 = (SPIManager_Evnt_t *)devnt_pool_get(&memPool, sizeof(SPIManager_Evnt_t));
+
+	mpool_init(&memPool2, mPoolBuff, sizeof(mPoolBuff), BLKSIZE );
+	SPIManager_Evnt_t * test5 = (SPIManager_Evnt_t *)mpool_get(&memPool2);
+	SPIManager_Evnt_t * test6 = (SPIManager_Evnt_t *)mpool_get(&memPool2);
+	SPIManager_Evnt_t * test7 = (SPIManager_Evnt_t *)mpool_get(&memPool2);
+	SPIManager_Evnt_t * test8 = (SPIManager_Evnt_t *)mpool_get(&memPool2);
+	mpool_put(&memPool2, (void*)test6);
+	SPIManager_Evnt_t * test9 = (SPIManager_Evnt_t *)mpool_get(&memPool2);
+
 }
 
 
